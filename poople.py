@@ -1,9 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from datamuse import Datamuse
-api = Datamuse()
-# test = api.words(sl="john")
-# print(test)
+# using requests because I don't understand datamuse
 
 
 
@@ -21,7 +18,23 @@ def poople(start_word):
     poop = Word("poop")
     start = Word(start_word)
     start_letters = start.letters
-    url_one = f'https://api.datamuse.com/words?sp={start_letters[0]}{start_letters[1]}{start_letters[2]}*'
-    url_two = f'https://api.datamuse.com/words?sp={start_letters[0]}{start_letters[1]}*{start_letters[3]}'
-    url_three = f'https://api.datamuse.com/words?sp={start_letters[0]}*{start_letters[2]}{start_letters[3]}'
-    url_four = f'https://api.datamuse.com/words?sp=*{start_letters[1]}{start_letters[2]}{start_letters[3]}'
+    urls_to_open = {
+    "url_one" : f'https://api.datamuse.com/words?sp={start_letters[0]}{start_letters[1]}{start_letters[2]}*',
+    "url_two" : f'https://api.datamuse.com/words?sp={start_letters[0]}{start_letters[1]}*{start_letters[3]}',
+    "url_three" : f'https://api.datamuse.com/words?sp={start_letters[0]}*{start_letters[2]}{start_letters[3]}',
+    "url_four" : f'https://api.datamuse.com/words?sp=*{start_letters[1]}{start_letters[2]}{start_letters[3]}'
+    }
+    words_json = []
+    for name, url in urls_to_open.items():
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            words_json.append(data)
+        else:
+            print(f"Failed to retrieve data from Datamuse API. Error code: {response.status_code}")
+    filtered_words = [word_dict["word"]
+        for unique_url_data in words_json
+        for similar_words in unique_url_data
+        for word_dict in similar_words
+        if len(word_dict["word"]) == 4
+    ]
