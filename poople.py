@@ -32,9 +32,10 @@ def poople(start_word):
             words_json.append(data)
         else:
             print(f"Failed to retrieve data from Datamuse API. Error code: {response.status_code}")
-    filtered_words = [word_dict["word"]
-        for unique_url_data in words_json
-        for similar_words in unique_url_data
-        for word_dict in similar_words
-        if len(word_dict["word"]) == 4
+    filtered_words = [word_dictionary.get("word")
+        for combo_words in words_json # combo_words : list
+        for word_dictionary in combo_words # word_dictionary : dict
+        if len(word_dictionary.get("word")) == 4
     ]
+    return filtered_words
+print(poople("hell"))
